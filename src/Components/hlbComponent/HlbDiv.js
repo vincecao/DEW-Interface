@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import ResultCard from '../parts/ResultCard'
 import { Button, InputGroup, FormControl, Form } from 'react-bootstrap'
-import { Position, Tooltip } from "@blueprintjs/core";
+import { Position, Tooltip, Toaster, Intent } from "@blueprintjs/core";
+
 
 export default class HlbDiv extends Component {
 
@@ -17,10 +18,20 @@ export default class HlbDiv extends Component {
     }
   }
 
+  toaster
+
+  refHandlers = {
+    toaster: (ref) => this.toaster = ref,
+  }
+
+  addToast = (intent, message) => {
+    this.toaster.show({ intent, message });
+  }
+
   behaviorInputGenerator = (index) => {
     return ['', <InputGroup className="mb-3" key={'inputGroup-' + index}>
       <InputGroup.Prepend>
-        <Tooltip content="Press return to create a new line" position={Position.RIGHT}>
+        <Tooltip content="Press return to create a new behavior" position={Position.RIGHT}>
           <InputGroup.Text>{index}</InputGroup.Text>
         </Tooltip>
       </InputGroup.Prepend>
@@ -38,13 +49,16 @@ export default class HlbDiv extends Component {
   }
 
   handleKeyPress = (target) => {
-    if (target.charCode === 13 && this.state.behaviorInputs[this.state.behaviorInputs.length - 1][0] !== '') {
-      this.setState({
-        ...this.state,
-        behaviorCount: this.state.behaviorCount + 1,
-        behaviorInputs: [...this.state.behaviorInputs, ['', this.behaviorInputGenerator(this.state.behaviorCount + 1)]]
-      })
-
+    if (target.charCode === 13) {
+      if (this.state.behaviorInputs[this.state.behaviorInputs.length - 1][0] !== '') {
+        this.setState({
+          ...this.state,
+          behaviorCount: this.state.behaviorCount + 1,
+          behaviorInputs: [...this.state.behaviorInputs, ['', this.behaviorInputGenerator(this.state.behaviorCount + 1)]]
+        })
+      } else {
+        this.addToast(Intent.DANGER, "Current line is empty")
+      }
     }
 
     // if (target.charCode == 13) {
@@ -109,17 +123,20 @@ export default class HlbDiv extends Component {
 
   render() {
     return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-        <div style={{ flex: 1 }}>
-          <ResultCard bg='info' header='Actors' render={this.renderActorCard()} />
-          <ResultCard bg='secondary' header='Behavior' render={this.renderbehaviorInputs()} />
-          <ResultCard bg='warning' header='Constraints' render={this.renderConstraintCard()} />
+      <>
+        <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}>
+        </Toaster>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <ResultCard bg='info' header='Actors' render={this.renderActorCard()} />
+            <ResultCard bg='secondary' header='Behavior' render={this.renderbehaviorInputs()} />
+            <ResultCard bg='warning' header='Constraints' render={this.renderConstraintCard()} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <ResultCard bg='dark' header={'Suggestions - ' + this.state.currentCard} height={670} render={this.renderSuggestionCard()} />
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <ResultCard bg='dark' header={'Suggestions - ' + this.state.currentCard} height={670} render={this.renderSuggestionCard()} />
-        </div>
-
-      </div>
+      </>
     )
   }
 }
