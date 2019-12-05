@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ResultCard from '../parts/ResultCard'
 import { Button, InputGroup, FormControl, Form } from 'react-bootstrap'
-import { Popover, Position, Tooltip } from "@blueprintjs/core";
+import { Position, Tooltip } from "@blueprintjs/core";
 
 export default class HlbDiv extends Component {
 
@@ -11,7 +11,7 @@ export default class HlbDiv extends Component {
       behaviorCount: 1,
       behaviorInputs: [['', this.behaviorInputGenerator(1)]],
       currentActive: -1,
-      currentCard: 'Actions',
+      currentCard: 'Actors',
       behaviorSuggestionLst: ['wait t', 'emit'],
       constraintsSuggestionLst: ['num', 'os', 'link', 'lan', 'interface', 'location', 'nodetype']
     }
@@ -70,11 +70,11 @@ export default class HlbDiv extends Component {
     })
   }
 
-  renderActionCard = () => {
+  renderActorCard = () => {
     return <Form>
       <Form.Group controlId="exampleForm.ControlTextarea1">
         {/* <Form.Label>Example textarea</Form.Label> */}
-        <Form.Control as="textarea" rows="5" onClick={() => this.handleOnClickWithSuggestionChange('Actions')} />
+        <Form.Control as="textarea" rows="5" onClick={() => this.handleOnClickWithSuggestionChange('Actors')} />
       </Form.Group>
     </Form>
   }
@@ -89,7 +89,7 @@ export default class HlbDiv extends Component {
   }
 
   renderSuggestionCard = () => {
-    if (this.state.currentCard === 'Actions') return <>
+    if (this.state.currentCard === 'Actors') return <>
       <Button className='btn-light' style={{ margin: 5 }}>Suggestion</Button>
       <Button className='btn-info' style={{ margin: 5 }}>Suggestion</Button>
       <Button className='btn-success' style={{ margin: 5 }}>Suggestion</Button>
@@ -111,7 +111,7 @@ export default class HlbDiv extends Component {
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
         <div style={{ flex: 1 }}>
-          <ResultCard bg='info' header='Actions' render={this.renderActionCard()} />
+          <ResultCard bg='info' header='Actors' render={this.renderActorCard()} />
           <ResultCard bg='secondary' header='Behavior' render={this.renderbehaviorInputs()} />
           <ResultCard bg='warning' header='Constraints' render={this.renderConstraintCard()} />
         </div>
