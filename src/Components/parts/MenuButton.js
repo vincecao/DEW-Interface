@@ -1,27 +1,15 @@
 import React, { } from 'react'
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Position, Toaster } from "@blueprintjs/core";
 
-let toaster
-
-let refHandlers = {
-  toaster: (ref) => toaster = ref,
-}
-
-let addToast = (intent, message) => {
-  toaster.show({ intent, message });
-}
-
-let handleOnClick = (intent, text) => {
+let handleOnClick = (addToast, intent, text) => {
   addToast(intent, text + ' click!')
 }
 
-const MenuButton = ({ icon, backgroundColor, text, intent }) => {
+const MenuButton = ({ icon, backgroundColor, text, intent, addToast }) => {
   return (
     <>
-      <Toaster position={Position.TOP_RIGHT} ref={refHandlers.toaster}> </Toaster>
-      <Button style={{ backgroundColor, border: 'none', margin: 5, width: 50 }} onClick={() => handleOnClick(intent, text)}> <FontAwesomeIcon icon={icon} /></Button>
+      <Button style={{ backgroundColor, border: 'none', margin: 5, width: 50 }} onClick={() => handleOnClick(addToast, intent, text)}> <FontAwesomeIcon icon={icon} /></Button>
     </>
   )
 }

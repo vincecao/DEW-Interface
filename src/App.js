@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import { Position, Toaster } from "@blueprintjs/core";
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,28 +20,41 @@ class App extends Component {
     this.state = {};
   }
 
+  toaster
+
+  refHandlers = {
+    toaster: (ref) => this.toaster = ref,
+  }
+
+  addToast = (intent, message) => {
+    this.toaster.show({ intent, message });
+  }
+
   handleOperationDiv = () => {
     let currentMode = this.props.currentMode
-    if (currentMode === 'hlb') return <HlbDiv />
-    if (currentMode === 'nlp') return <NlpDiv />
-    if (currentMode === 'bdg') return <BdgDiv />
-    if (currentMode === 'top') return <TopDiv />
-    if (currentMode === 'hlb') return <HlbDiv />
+    if (currentMode === 'hlb') return <HlbDiv addToast={this.addToast} />
+    if (currentMode === 'nlp') return <NlpDiv addToast={this.addToast} />
+    if (currentMode === 'bdg') return <BdgDiv addToast={this.addToast} />
+    if (currentMode === 'top') return <TopDiv addToast={this.addToast} />
+    if (currentMode === 'hlb') return <HlbDiv addToast={this.addToast} />
   }
 
   render() {
     return (
-      <div className='container' style={{ display: 'flex', flexDirection: 'column', marginTop: 20 }}>
-        <h1>DEW Interface</h1>
-        <div style={{ marginTop: 10 }}>
-          <Menu />
+      <>
+        <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}></Toaster>
+        <div className='container' style={{ display: 'flex', flexDirection: 'column', marginTop: 20 }}>
+          <h1>DEW Interface</h1>
+          <div style={{ marginTop: 10 }}>
+            <Menu addToast={this.addToast} />
 
+          </div>
+          <div style={{ flex: 1, marginTop: 10 }}>
+            <MyNav />
+            {this.handleOperationDiv()}
+          </div>
         </div>
-        <div style={{ flex: 1, marginTop: 10 }}>
-          <MyNav />
-          {this.handleOperationDiv()}
-        </div>
-      </div>
+      </>
     );
   }
 

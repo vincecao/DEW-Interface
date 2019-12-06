@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ResultCard from '../parts/ResultCard'
 import { Button, InputGroup, FormControl, Form } from 'react-bootstrap'
-import { Position, Tooltip, Toaster, Intent } from "@blueprintjs/core";
+import { Position, Tooltip, Intent } from "@blueprintjs/core";
 import { faTimes, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -19,18 +19,10 @@ export default class HlbDiv extends Component {
     }
   }
 
-  toaster
 
-  refHandlers = {
-    toaster: (ref) => this.toaster = ref,
-  }
-
-  addToast = (intent, message) => {
-    this.toaster.show({ intent, message });
-  }
 
   behaviorInputGenerator = (index) => {
-    return ['', <div style={{display: 'flex', flexDirection: 'row'}}><InputGroup className="mb-3" key={'inputGroup-' + index}>
+    return ['', <div style={{ display: 'flex', flexDirection: 'row' }}><InputGroup className="mb-3" key={'inputGroup-' + index}>
       <InputGroup.Prepend>
         <Tooltip content="Press return to create a new behavior" position={Position.RIGHT}>
           <InputGroup.Text className='btn-light border-0'>{index}</InputGroup.Text>
@@ -40,7 +32,7 @@ export default class HlbDiv extends Component {
       <InputGroup.Append>
         <Button variant="outline-danger" className='btn-light border-0' onClick={() => this.handleOnInputClear(index)}><FontAwesomeIcon icon={faTimesCircle} /></Button>
       </InputGroup.Append>
-    </InputGroup><Button variant="outline-danger" className='btn-light border-0 ml-3' style={{height: 38}} onClick={() => this.handleOutInputClear(index)}><FontAwesomeIcon icon={faTimes} /></Button></div>]
+    </InputGroup><Button variant="outline-danger" className='btn-light border-0 ml-3' style={{ height: 38 }} onClick={() => this.handleOutInputClear(index)}><FontAwesomeIcon icon={faTimes} /></Button></div>]
   }
 
   handleOnInputClear = (index) => {
@@ -51,11 +43,13 @@ export default class HlbDiv extends Component {
       ...this.states,
       behaviorInputs: temp
     })
+    this.props.addToast(Intent.WARNING, "Clear one line")
     //ToDo: Text of input hard coded during first Generator
   }
 
   handleOutInputClear = (index) => {
     console.log('clear out input ' + (index - 1))
+    this.props.addToast(Intent.DANGER, "Remove one line")
   }
 
   handleBehaviorValueOnChange = (e, index) => {
@@ -76,7 +70,7 @@ export default class HlbDiv extends Component {
           behaviorInputs: [...this.state.behaviorInputs, ['', this.behaviorInputGenerator(this.state.behaviorCount + 1)]]
         })
       } else {
-        this.addToast(Intent.DANGER, "Current line is empty")
+        this.props.addToast(Intent.DANGER, "Current line is empty")
       }
     }
 
@@ -143,7 +137,6 @@ export default class HlbDiv extends Component {
   render() {
     return (
       <>
-        <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}></Toaster>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
           <div style={{ flex: 1 }}>
             <ResultCard bg='info' header='Actors' render={this.renderActorCard()} />
