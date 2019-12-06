@@ -20,8 +20,7 @@ let handleOnClick = (intent, text) => {
 const MenuButton = ({ icon, backgroundColor, text, intent }) => {
   return (
     <>
-      <Toaster position={Position.TOP_RIGHT} ref={refHandlers.toaster}>
-      </Toaster>
+      <Toaster position={Position.TOP_RIGHT} ref={refHandlers.toaster}> </Toaster>
       <Button style={{ backgroundColor, border: 'none', margin: 5, width: 50 }} onClick={() => handleOnClick(intent, text)}> <FontAwesomeIcon icon={icon} /></Button>
     </>
   )

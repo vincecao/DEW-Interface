@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import ResultCard from '../parts/ResultCard'
 import { Button, InputGroup, FormControl, Form } from 'react-bootstrap'
 import { Position, Tooltip, Toaster, Intent } from "@blueprintjs/core";
-
+import { faTimes, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 export default class HlbDiv extends Component {
 
@@ -29,14 +30,32 @@ export default class HlbDiv extends Component {
   }
 
   behaviorInputGenerator = (index) => {
-    return ['', <InputGroup className="mb-3" key={'inputGroup-' + index}>
+    return ['', <div style={{display: 'flex', flexDirection: 'row'}}><InputGroup className="mb-3" key={'inputGroup-' + index}>
       <InputGroup.Prepend>
         <Tooltip content="Press return to create a new behavior" position={Position.RIGHT}>
-          <InputGroup.Text>{index}</InputGroup.Text>
+          <InputGroup.Text className='btn-light border-0'>{index}</InputGroup.Text>
         </Tooltip>
       </InputGroup.Prepend>
       <FormControl aria-label="Amount (to the nearest dollar)" onClick={() => this.handleOnClickWithSuggestionChange('Behavior')} text={(this.state === undefined || this.state.behaviorInputs[index - 1] === undefined) ? '' : this.state.behaviorInputs[index - 1][0]} onKeyPress={target => this.handleKeyPress(target)} onChange={(e) => { this.handleBehaviorValueOnChange(e, index) }} />
-    </InputGroup>]
+      <InputGroup.Append>
+        <Button variant="outline-danger" className='btn-light border-0' onClick={() => this.handleOnInputClear(index)}><FontAwesomeIcon icon={faTimesCircle} /></Button>
+      </InputGroup.Append>
+    </InputGroup><Button variant="outline-danger" className='btn-light border-0 ml-3' style={{height: 38}} onClick={() => this.handleOutInputClear(index)}><FontAwesomeIcon icon={faTimes} /></Button></div>]
+  }
+
+  handleOnInputClear = (index) => {
+    console.log('clear in input ' + (index - 1))
+    let temp = this.state.behaviorInputs
+    temp[index - 1][0] = ''
+    this.setState({
+      ...this.states,
+      behaviorInputs: temp
+    })
+    //ToDo: Text of input hard coded during first Generator
+  }
+
+  handleOutInputClear = (index) => {
+    console.log('clear out input ' + (index - 1))
   }
 
   handleBehaviorValueOnChange = (e, index) => {
@@ -124,8 +143,7 @@ export default class HlbDiv extends Component {
   render() {
     return (
       <>
-        <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}>
-        </Toaster>
+        <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}></Toaster>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
           <div style={{ flex: 1 }}>
             <ResultCard bg='info' header='Actors' render={this.renderActorCard()} />
