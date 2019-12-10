@@ -12,7 +12,6 @@ import NlpDiv from './Components/nlpComponent/NlpDiv'
 import BdgDiv from './Components/bdgComponent/BdgDiv'
 import TopDiv from './Components/topComponent/TopDiv'
 
-
 class App extends Component {
 
   constructor(props) {
@@ -39,6 +38,8 @@ class App extends Component {
     if (currentMode === 'hlb') return <HlbDiv addToast={this.addToast} />
   }
 
+
+
   render() {
     return (
       <>
@@ -51,7 +52,9 @@ class App extends Component {
           </div>
           <div style={{ flex: 1, marginTop: 10 }}>
             <MyNav />
+
             {this.handleOperationDiv()}
+
           </div>
         </div>
       </>

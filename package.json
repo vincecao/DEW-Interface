@@ -1,5 +1,5 @@
 {
-  "name": "create-react-app",
+  "name": "dew-interface",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,6 +11,7 @@
     "jquery": ">=3.4.0",
     "normalize.css": "^8.0.1",
     "react": "^16.6.1",
+    "react-beautiful-dnd": "^12.2.0",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-dom": "^16.6.1",
     "react-redux": "^7.1.3",
