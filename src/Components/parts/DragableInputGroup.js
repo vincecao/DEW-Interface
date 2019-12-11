@@ -5,6 +5,7 @@ import { faTimes, faTimesCircle, faBars } from '@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Draggable } from 'react-beautiful-dnd'
 
+import './index.css'
 export default class HlbDiv extends Component {
 
   divStyle = {
@@ -18,7 +19,7 @@ export default class HlbDiv extends Component {
   }
 
   render() {
-    const { input, index, handleOnClickWithSuggestionChange, handleKeyPress, handleBehaviorValueOnChange, handleOnInputClear, handleOutInputClear } = this.props
+    const { input, index, handleOnClickWithSuggestionChange, handleKeyDown, handleBehaviorValueOnChange, handleOnInputClear, handleOutInputClear, handleOnFocus, handleOnBlur } = this.props
 
     return (
       <Draggable draggableId={input.id + ''} index={index} >
@@ -28,13 +29,15 @@ export default class HlbDiv extends Component {
             ref={provided.innerRef}
           >
             {<div style={this.divStyle}>
-              <InputGroup className="mb-3" >
+              <InputGroup className="mb-3">
                 <InputGroup.Prepend>
                   <Tooltip content="Press return to create a new behavior" position={Position.RIGHT} tabIndex={-1}>
                     <InputGroup.Text className='btn-light border-0' tabIndex={-1}>{index + 1}</InputGroup.Text>
                   </Tooltip>
                 </InputGroup.Prepend>
-                <FormControl aria-label="Amount (to the nearest dollar)" onClick={() => handleOnClickWithSuggestionChange('Behavior')} value={input.command} onKeyPress={target => handleKeyPress(target, index)} onChange={(e) => handleBehaviorValueOnChange(e, index)} />
+                <div className="myInputControl" style={{ flex: 1 }} data-placeholder={input.suggestionPlaceHolder}>
+                  <FormControl aria-label="behavior-command" onBlur={() => handleOnBlur(index)} onFocus={() => handleOnFocus(index)} onClick={() => handleOnClickWithSuggestionChange('Behavior')} value={input.command} onKeyDown={event => handleKeyDown(event, index)} onChange={(e) => handleBehaviorValueOnChange(e, index)} />
+                </div>
                 <InputGroup.Append>
                   <Button variant="outline-danger" className='btn-light border-0' onClick={() => handleOnInputClear(index)} tabIndex={-1}><FontAwesomeIcon icon={faTimesCircle} /></Button>
                 </InputGroup.Append>

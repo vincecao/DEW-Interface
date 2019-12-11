@@ -1,0 +1,11 @@
+
+.myInputControl::after{
+    position: absolute;
+    left: 45px;
+    top: 8px;
+    content: attr(data-placeholder);
+    pointer-events: none;
+    opacity: 0.7;
+    z-index: 1;
+    color: black
+}

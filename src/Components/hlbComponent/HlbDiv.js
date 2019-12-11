@@ -7,20 +7,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DragableInputGroup from '../parts/DragableInputGroup'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 
-export default class HlbDiv extends Component {
+import { TABLIST, CONSTRIANTSUGGESTIONS, BEHAVIORSUGGESTIONS } from '../../dataModel'
 
+export default class HlbDiv extends Component {
+  _timeoutID;
   constructor(props) {
     super(props)
     this.state = {
-      behaviorCount: 1,
-      behaviorInputs: [{ id: 1, command: 'Default Line1' }, { id: 2, command: 'Default Line2' }],
+      behaviorCount: 3,
+      behaviorInputs: [{ id: 1, command: 'server install_iperf' }, { id: 2, command: 'when mstarted, sstarted client start_traffic emit cstarted' }, { id: 3, command: 'when cstopped server stop_measure emit mstopped' }],
       currentActive: -1,
-      currentCard: 'Actors',
-      behaviorSuggestionLst: ['wait t', 'emit'],
-      constraintsSuggestionLst: ['num', 'os', 'link', 'lan', 'interface', 'location', 'nodetype']
+      currentCard: 'Actors'
     }
 
-    this.fields = {}
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
 
@@ -34,6 +34,7 @@ export default class HlbDiv extends Component {
       behaviorInputs: temp
     })
     this.props.addToast(Intent.WARNING, "Clear one line")
+    this.handleOnBlur(index)
   }
 
   handleOutInputClear = (index) => {
@@ -47,20 +48,48 @@ export default class HlbDiv extends Component {
     })
 
     this.props.addToast(Intent.DANGER, "Remove one line")
-
   }
 
   handleBehaviorValueOnChange = (e, index) => {
+    const value = e.target.value.toString()
     let temp = this.state.behaviorInputs
-    temp[index].command = e.target.value
+    temp[index].command = value
+
+    let n = value.split(" ")
+    let lastWord = n[n.length - 1]
+    const autoSuggestion = lastWord === "" ? '' : TABLIST.filter((t) => t.indexOf(lastWord) === 0)[0]
+    temp[index].suggestionPlaceHolder = value.substring(0, value.lastIndexOf(" ") + 1) + (autoSuggestion === undefined ? '' : autoSuggestion)
+
     this.setState({
       ...this.state,
       behaviorInputs: temp
     })
   }
 
-  handleKeyPress = (target, index) => {
-    if (target.charCode === 13) {
+  handleOnFocus = (index) => {
+    let temp = Array.from(this.state.behaviorInputs)
+    if (temp[index]['command'] !== '') {
+      temp[index]['command'] = temp[index]['command'] + ' '
+      this.setState({
+        ...this.state,
+        behaviorInputs: temp
+      })
+    }
+  }
+
+  handleOnBlur = (index) => {
+    let temp = Array.from(this.state.behaviorInputs)
+    temp[index]['command'] = temp[index]['command'].trim()
+    temp[index]['suggestionPlaceHolder'] = temp[index]['command']
+    this.setState({
+      ...this.state,
+      behaviorInputs: temp
+    })
+  }
+
+  handleKeyDown = (event, index) => {
+    if (event.key === "Enter") {
+      //if (event.charCode === 13) { with on onKeypress
       if (this.state.behaviorInputs[index] === undefined ||
         (this.state.behaviorInputs[index] !== undefined && this.state.behaviorInputs[index].command === '') ||
         (this.state.behaviorInputs[index] !== undefined && this.state.behaviorInputs[index].command !== '' && this.state.behaviorInputs[index + 1] !== undefined && this.state.behaviorInputs[index + 1].command === '')) {
@@ -74,6 +103,18 @@ export default class HlbDiv extends Component {
           behaviorInputs: temp
         })
       }
+    } else if (event.key === "Tab") {
+      event.preventDefault()
+      let temp = this.state.behaviorInputs
+      if (temp[index].suggestionPlaceHolder !== '' && temp[index].suggestionPlaceHolder !== undefined) {
+        temp[index].command = temp[index].suggestionPlaceHolder + ' '
+        this.setState({
+          ...this.state,
+          behaviorInputs: temp
+        })
+      }
+
+      return (false)
     }
   }
 
@@ -92,8 +133,10 @@ export default class HlbDiv extends Component {
               key={input.id + ''}
               input={input}
               index={index}
+              handleOnFocus={this.handleOnFocus}
+              handleOnBlur={this.handleOnBlur}
               handleOnClickWithSuggestionChange={this.handleOnClickWithSuggestionChange}
-              handleKeyPress={this.handleKeyPress}
+              handleKeyDown={this.handleKeyDown}
               handleBehaviorValueOnChange={this.handleBehaviorValueOnChange}
               handleOnInputClear={this.handleOnInputClear}
               handleOutInputClear={this.handleOutInputClear} />)}
@@ -140,9 +183,9 @@ export default class HlbDiv extends Component {
       <Button className='btn-primary' style={{ margin: 5 }}>Suggestion</Button>
     </>
 
-    if (this.state.currentCard === 'Behavior') return this.state.behaviorSuggestionLst.map((item, index) => <Button key={'behavior-suggestion-' + index} className='btn-secondary' style={{ margin: 5 }}>{item}</Button>)
+    if (this.state.currentCard === 'Behavior') return BEHAVIORSUGGESTIONS.map((item, index) => <Button key={'behavior-suggestion-' + index} className='btn-secondary' style={{ margin: 5 }}>{item}</Button>)
 
-    if (this.state.currentCard === 'Constraints') return this.state.constraintsSuggestionLst.map((item, index) => <Button key={'constraints-suggestion-' + index} className='btn-warning' style={{ margin: 5 }}>{item}</Button>)
+    if (this.state.currentCard === 'Constraints') return CONSTRIANTSUGGESTIONS.map((item, index) => <Button key={'constraints-suggestion-' + index} className='btn-warning' style={{ margin: 5 }}>{item}</Button>)
 
   }
 
