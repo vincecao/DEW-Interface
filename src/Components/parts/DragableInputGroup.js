@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, InputGroup, FormControl } from 'react-bootstrap'
-import { Position, Tooltip } from "@blueprintjs/core";
+import { Position, Tooltip } from "@blueprintjs/core"
 import { faTimes, faTimesCircle, faBars } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Draggable } from 'react-beautiful-dnd'

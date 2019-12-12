@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Position, Toaster } from "@blueprintjs/core";
+import { Position, Toaster } from "@blueprintjs/core"
 
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import Menu from './Components/menuComponent/Menu'
 import MyNav from './Components/navComponent/MyNav'
@@ -12,11 +12,15 @@ import NlpDiv from './Components/nlpComponent/NlpDiv'
 import BdgDiv from './Components/bdgComponent/BdgDiv'
 import TopDiv from './Components/topComponent/TopDiv'
 
+// import { switchModeAction } from './Actions/switchModeAction'
+
 class App extends Component {
 
   constructor(props) {
-    super(props);
-    this.state = {};
+    super(props)
+    this.state = {
+
+    }
   }
 
   toaster
@@ -26,7 +30,7 @@ class App extends Component {
   }
 
   addToast = (intent, message) => {
-    this.toaster.show({ intent, message });
+    this.toaster.show({ intent, message })
   }
 
   handleOperationDiv = () => {
@@ -38,13 +42,12 @@ class App extends Component {
     if (currentMode === 'hlb') return <HlbDiv addToast={this.addToast} />
   }
 
-
-
   render() {
+    const { isExpand } = this.props
     return (
       <>
         <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}></Toaster>
-        <div className='container' style={{ display: 'flex', flexDirection: 'column', marginTop: 20 }}>
+        <div className={(!isExpand) ? 'container-fluid' : 'container'} style={{ display: 'flex', flexDirection: 'column', marginTop: 20 }}>
           <h1>DEW Interface</h1>
           <div style={{ marginTop: 10 }}>
             <Menu addToast={this.addToast} />
@@ -58,21 +61,21 @@ class App extends Component {
           </div>
         </div>
       </>
-    );
+    )
   }
-
 }
 
 const mapStateToProps = (state) => {
   return {
     currentMode: state.dewMain.currentMode,
+    isExpand: state.dewMain.isExpand,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    // updateCurrentMode: () => dispatch(switchModeAction())
-  };
-};
+    // updateCurrentMode: (currentMode) => dispatch(switchModeAction(currentMode))
+  }
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App)

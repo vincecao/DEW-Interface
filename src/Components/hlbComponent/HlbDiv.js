@@ -1,18 +1,21 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import ResultCard from '../parts/ResultCard'
 import { Button, Form } from 'react-bootstrap'
-import { Intent } from "@blueprintjs/core";
+import { Intent } from "@blueprintjs/core"
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DragableInputGroup from '../parts/DragableInputGroup'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 
-import { TABLIST, CONSTRIANTSUGGESTIONS, BEHAVIORSUGGESTIONS } from '../../dataModel'
+import { TABLIST, CONSTRIANTSUGGESTIONS } from '../../dataModel'
+import { updateHlbStateAction } from '../../Actions/updateHlbStateAction'
 
-export default class HlbDiv extends Component {
+class HlbDiv extends Component {
 
   constructor(props) {
     super(props)
+
     this.state = {
       behaviorCount: 3,
       behaviorInputs: [{ id: 1, command: 'server install_iperf' }, { id: 2, command: 'when mstarted, sstarted client start_traffic emit cstarted' }, { id: 3, command: 'when cstopped server stop_measure emit mstopped' }],
@@ -25,7 +28,16 @@ export default class HlbDiv extends Component {
       }
     }
 
-    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this)
+  }
+
+  componentDidMount() {
+    this.setState({
+      ...this.props.hlbState
+    })
+  }
+  componentWillUnmount() {
+    this.props.saveCurrentState(this.state)
   }
 
   handleOnInputClear = (index) => {
@@ -114,7 +126,7 @@ export default class HlbDiv extends Component {
       let value = currentInput.command.toString()
       if (value.slice(-1) === ' ') {
         // console.log('false')
-        event.preventDefault();
+        event.preventDefault()
       }
     }
 
@@ -191,8 +203,8 @@ export default class HlbDiv extends Component {
   }
 
   handleSuggestionMouseDown = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     this.state.lastFocus['target'].focus()
 
     const value = this.state.lastFocus['target'].value.toString()
@@ -242,7 +254,7 @@ export default class HlbDiv extends Component {
   }
 
   onBehaviorDragEnd = result => {
-    const { destination, source, draggableId } = result;
+    const { destination, source, draggableId } = result
     console.log('destination.index', destination.index, 'draggableId', draggableId)
     console.log('source.index', source.index)
 
@@ -283,3 +295,17 @@ export default class HlbDiv extends Component {
     )
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    hlbState: state.hlb.hlbState,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    saveCurrentState: (state) => dispatch(updateHlbStateAction(state))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HlbDiv)

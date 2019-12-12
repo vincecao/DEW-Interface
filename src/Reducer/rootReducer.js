@@ -1,8 +1,10 @@
 import dewMainReducer from './dewMainReducer'
-import { combineReducers } from 'redux';
+import hlbReducer from './hlbReducer'
+import { combineReducers } from 'redux'
 
 const rootReducer = combineReducers({
-  dewMain: dewMainReducer //auth
+  dewMain: dewMainReducer,
+  hlb: hlbReducer
 })
 
-export default rootReducer;
+export default rootReducer

@@ -40,6 +40,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => {
   return {
     updateCurrentMode: (selectedKey) => dispatch(switchModeAction(selectedKey))
-  };
-};
+  }
+}
 export default connect(mapStateToProps, mapDispatchToProps)(MyNav)
