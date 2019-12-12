@@ -36,7 +36,7 @@ export default class HlbDiv extends Component {
                   </Tooltip>
                 </InputGroup.Prepend>
                 <div className="myInputControl" style={{ flex: 1 }} data-placeholder={input.suggestionPlaceHolder}>
-                  <FormControl aria-label="behavior-command" onBlur={() => handleOnBlur(index)} onFocus={() => handleOnFocus(index)} onClick={() => handleOnClickWithSuggestionChange('Behavior')} value={input.command} onKeyDown={event => handleKeyDown(event, index)} onChange={(e) => handleBehaviorValueOnChange(e, index)} />
+                  <FormControl aria-label="behavior-command" onBlur={(event) => handleOnBlur(event, index)} onFocus={(event) => handleOnFocus(event, index)} onClick={() => handleOnClickWithSuggestionChange('Behavior')} value={input.command} onKeyDown={event => handleKeyDown(event, index)} onChange={(e) => handleBehaviorValueOnChange(e, index)} />
                 </div>
                 <InputGroup.Append>
                   <Button variant="outline-danger" className='btn-light border-0' onClick={() => handleOnInputClear(index)} tabIndex={-1}><FontAwesomeIcon icon={faTimesCircle} /></Button>

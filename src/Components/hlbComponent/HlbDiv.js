@@ -10,20 +10,23 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import { TABLIST, CONSTRIANTSUGGESTIONS, BEHAVIORSUGGESTIONS } from '../../dataModel'
 
 export default class HlbDiv extends Component {
-  _timeoutID;
+
   constructor(props) {
     super(props)
     this.state = {
       behaviorCount: 3,
       behaviorInputs: [{ id: 1, command: 'server install_iperf' }, { id: 2, command: 'when mstarted, sstarted client start_traffic emit cstarted' }, { id: 3, command: 'when cstopped server stop_measure emit mstopped' }],
       currentActive: -1,
-      currentCard: 'Actors'
+      currentCard: 'Actors',
+      autoSuggestionLst: TABLIST,
+      lastFocus: {
+        target: null,
+        index: null
+      }
     }
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
   }
-
-
 
   handleOnInputClear = (index) => {
     console.log('clear in input ' + index)
@@ -51,48 +54,75 @@ export default class HlbDiv extends Component {
   }
 
   handleBehaviorValueOnChange = (e, index) => {
-    const value = e.target.value.toString()
+
+    if (e.key === "Space") {
+      let value = this.state.behaviorInputs[index].command.toString()
+      if (value.slice(-1) === ' ') return false
+    }
+
+
+    let value = e.target.value.toString()
     let temp = this.state.behaviorInputs
     temp[index].command = value
 
     let n = value.split(" ")
     let lastWord = n[n.length - 1]
-    const autoSuggestion = lastWord === "" ? '' : TABLIST.filter((t) => t.indexOf(lastWord) === 0)[0]
-    temp[index].suggestionPlaceHolder = value.substring(0, value.lastIndexOf(" ") + 1) + (autoSuggestion === undefined ? '' : autoSuggestion)
+    let autoSuggestionLst = lastWord === '' ? TABLIST : TABLIST.filter((t) => t.indexOf(lastWord) === 0) //Replace TABLIST with request from backend server by sytax suggestion
+    temp[index].suggestionPlaceHolder = value.substring(0, value.lastIndexOf(" ") + 1) + (autoSuggestionLst.length === 0 ? '' : autoSuggestionLst[0])
 
     this.setState({
       ...this.state,
-      behaviorInputs: temp
+      behaviorInputs: temp,
+      autoSuggestionLst
     })
+
   }
 
-  handleOnFocus = (index) => {
+  handleOnFocus = (e, index) => {
     let temp = Array.from(this.state.behaviorInputs)
     if (temp[index]['command'] !== '') {
       temp[index]['command'] = temp[index]['command'] + ' '
       this.setState({
         ...this.state,
+        lastFocus: {
+          target: e.target,
+          index: index
+        },
         behaviorInputs: temp
       })
     }
   }
 
-  handleOnBlur = (index) => {
+  handleOnBlur = (e, index) => {
     let temp = Array.from(this.state.behaviorInputs)
-    temp[index]['command'] = temp[index]['command'].trim()
-    temp[index]['suggestionPlaceHolder'] = temp[index]['command']
-    this.setState({
-      ...this.state,
-      behaviorInputs: temp
-    })
+    if (temp[index] !== undefined) {
+      temp[index]['command'] = temp[index]['command'].trim()
+      temp[index]['suggestionPlaceHolder'] = '' //temp[index]['command']
+      this.setState({
+        ...this.state,
+        behaviorInputs: temp
+      })
+    }
+
   }
 
   handleKeyDown = (event, index) => {
+
+    let currentInput = this.state.behaviorInputs[index]
+    let nextInput = this.state.behaviorInputs[index + 1]
+    if (event.key === " ") {
+      let value = currentInput.command.toString()
+      if (value.slice(-1) === ' ') {
+        // console.log('false')
+        event.preventDefault();
+      }
+    }
+
     if (event.key === "Enter") {
       //if (event.charCode === 13) { with on onKeypress
-      if (this.state.behaviorInputs[index] === undefined ||
-        (this.state.behaviorInputs[index] !== undefined && this.state.behaviorInputs[index].command === '') ||
-        (this.state.behaviorInputs[index] !== undefined && this.state.behaviorInputs[index].command !== '' && this.state.behaviorInputs[index + 1] !== undefined && this.state.behaviorInputs[index + 1].command === '')) {
+      if (currentInput === undefined ||
+        (currentInput !== undefined && currentInput.command === '') ||
+        (currentInput !== undefined && currentInput.command !== '' && nextInput !== undefined && nextInput.command === '')) {
         this.props.addToast(Intent.DANGER, "Please fill line first")
       } else {
         let temp = this.state.behaviorInputs
@@ -103,14 +133,19 @@ export default class HlbDiv extends Component {
           behaviorInputs: temp
         })
       }
-    } else if (event.key === "Tab") {
+    }
+
+    if (event.key === "Tab") {
       event.preventDefault()
+
       let temp = this.state.behaviorInputs
+
       if (temp[index].suggestionPlaceHolder !== '' && temp[index].suggestionPlaceHolder !== undefined) {
-        temp[index].command = temp[index].suggestionPlaceHolder + ' '
+        temp[index].command = temp[index].suggestionPlaceHolder.trim() + ' '
         this.setState({
           ...this.state,
-          behaviorInputs: temp
+          behaviorInputs: temp,
+          autoSuggestionLst: TABLIST //request from server by sytax suggestion
         })
       }
 
@@ -155,6 +190,23 @@ export default class HlbDiv extends Component {
     })
   }
 
+  handleSuggestionMouseDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.state.lastFocus['target'].focus()
+
+    const value = this.state.lastFocus['target'].value.toString()
+    let temp = this.state.behaviorInputs
+    temp[this.state.lastFocus['index']]['command'] = value.substring(0, value.lastIndexOf(" ") + 1) + e.target.value + ' '
+    temp[this.state.lastFocus['index']]['suggestionPlaceHolder'] = ''
+    this.setState({
+      ...this.state,
+      behaviorInputs: temp,
+      autoSuggestionLst: TABLIST //request from server by sytax suggestion
+    })
+    return (false)
+  }
+
   renderActorCard = () => {
     return <Form >
       <Form.Group controlId="textareaActor" key={'textareaActor'}>
@@ -183,7 +235,7 @@ export default class HlbDiv extends Component {
       <Button className='btn-primary' style={{ margin: 5 }}>Suggestion</Button>
     </>
 
-    if (this.state.currentCard === 'Behavior') return BEHAVIORSUGGESTIONS.map((item, index) => <Button key={'behavior-suggestion-' + index} className='btn-secondary' style={{ margin: 5 }}>{item}</Button>)
+    if (this.state.currentCard === 'Behavior') return this.state.autoSuggestionLst.map((item, index) => <Button key={'behavior-suggestion-' + index} className='btn-secondary' onMouseDown={(e) => this.handleSuggestionMouseDown(e)} style={{ margin: 5 }} value={item}>{item}</Button>)
 
     if (this.state.currentCard === 'Constraints') return CONSTRIANTSUGGESTIONS.map((item, index) => <Button key={'constraints-suggestion-' + index} className='btn-warning' style={{ margin: 5 }}>{item}</Button>)
 
@@ -224,7 +276,7 @@ export default class HlbDiv extends Component {
             <ResultCard bg='warning' header='Constraints' render={this.renderConstraintCard()} />
           </div>
           <div style={{ flex: 1 }}>
-            <ResultCard bg='dark' header={'Suggestions - ' + this.state.currentCard} height={670} render={this.renderSuggestionCard()} />
+            <ResultCard bg='dark' header={'Suggestions - ' + this.state.currentCard} minHeight={670} render={this.renderSuggestionCard()} />
           </div>
         </div>
       </>
