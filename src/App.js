@@ -47,7 +47,7 @@ class App extends Component {
     return (
       <>
         <Toaster position={Position.TOP_RIGHT} ref={this.refHandlers.toaster}></Toaster>
-        <div className={(!isExpand) ? 'container-fluid' : 'container'} style={{ display: 'flex', flexDirection: 'column', marginTop: 20 }}>
+        <div className={(!isExpand) ? 'container-fluid' : 'container'} style={{ display: 'flex', flexDirection: 'column', marginTop: 20, transition: 'all 0.2s' }}>
           <h1>DEW Interface</h1>
           <div style={{ marginTop: 10 }}>
             <Menu addToast={this.addToast} />
