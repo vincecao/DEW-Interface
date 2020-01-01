@@ -1,11 +1,16 @@
 import sys
 import os.path
-from flask import Flask, redirect, request, jsonify
+import random
+from flask import Flask, redirect, request, jsonify, send_file
 from flask_restful import Resource, Api
-sys.path.append('./Dew_Functions/Generators/')
-sys.path.append('./Dew_Functions/UI/HighLevelBehaviorLanguage/')
-sys.path.append('./Dew_Functions/UI/')
+sys.path.append('./DewFunctions/Generators/')
+sys.path.append('./DewFunctions/UI/HighLevelBehaviorLanguage/')
+sys.path.append('./DewFunctions/UI/')
+sys.path.append('./DewFunctions/Translators/bash')
+sys.path.append('./DewFunctions/Translators/magi')
+from parsebash import GeneralParseBash
 from generator import GeneralGenerator
+# from generator import GeneralGenerator
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,26 +28,43 @@ class HandleBehaviorSuggestions(Resource):
         return {'suggestionList': ['wait', 'emit', 'server', 'client', 'install_iperf', 'install_flooder', 'install_tcpdump', 'start_measure', 'start_server', 'mstarted', 'sstarted', 'when', 'mstarted', 'cstarted', 'astarted', 'astopped', 'attacker', 'start_traffic', 'start_attack', 'stop_attack', 'stop_traffic', 'cstopped', 'mstopped', 'calculate_entropy', 'stop_measure', 'COPY_TO_GITHUB']}
 api.add_resource(HandleBehaviorSuggestions, '/Behavior/<string:behavior_command>')
 
-
-# Handle Behavior Suggestions On Each Key Press
-class HandleGenerators(Resource):
-    def get(self, blh_id):
-        # return ((blh_id in hlb) ? hlb[blh_id] : {'errsmg': 'no id found'})
-        return hlb[blh_id] if blh_id in hlb.keys() else {'errsmg': 'no id found'}
-    def put(self, blh_id):
+# Handle Translator 
+class HandleTranslator(Resource):
+    def put(self, format, returnType):
+        
         json_data = request.get_json(force=True)
-        tn = json_data['generatorType']
-        sn = json_data['scenario']
-        cw = json_data['constraint']
+        data = json_data['InputFileContent']
+        print(data)
+        dewOut = ""
+        s = []
+        c = []
+        b = []
+        if(format == "bash"):
+            dewOut, s, c, b = GeneralParseBash.parse(data)
+        if(format == "magi"):
+            dewOut = "" #TODO: MAGI format
+        #print(dewOut)
+        if(returnType == "json"):
+            return {'Scenario':s, 'Constraints':c, 'Bindings':b}
+        elif(returnType == "dew"):
+            with open("./ReturnFiles/returnTranslator.dew", "w") as file:
+                file.write(dewOut)
+            return send_file("./ReturnFiles/returnTranslator.dew")
 
-        constraints = cw#[x[0] for x in cw]
-        scenario = sn#[x[0] for x in sn]
+api.add_resource(HandleTranslator, '/hlb/translate/<string:format>/<string:returnType>')
+
+# Handle Parse
+class HandleParse(Resource):
+    def put(self):
+        json_data = request.get_json(force=True)
+        tn = json_data['ParseType']
+        scenario = json_data['Scenario']
+        constraints = json_data['Constraints']
 
         cwd = os.path.dirname(os.path.realpath(__file__))
-        print(cwd)
-        parentDirectory = os.path.abspath(os.path.join(cwd, os.pardir))
-        if os.path.isdir(cwd + "/Dew_Functions/Generators/" + tn):
-            sys.path.append(cwd + "/Dew_Functions/Generators/" + tn)
+        # print(cwd)
+        if os.path.isdir(cwd + "/DewFunctions/Generators/" + tn):
+            sys.path.append(cwd + "/DewFunctions/Generators/" + tn)
         else:
             print("\nERROR:\tExpecting generator type (%s) to match {generator}/{generator}.py\n\t(e.g. %s/%s.py) in %s/ directory.\n\n" %(tn, tn, tn, cwd))
             print("\n")
@@ -50,14 +72,30 @@ class HandleGenerators(Resource):
 
         chosenGenerator = __import__(tn, fromlist=['Generator'])
         generator = chosenGenerator.Generator(scenario, constraints=constraints)
-        # gen = generator.parse()
-        scenario_parsed, constraints_parsed = generator.parse()
+        scenario_parsed, constraints_parsed = generator.generate()
         print(scenario_parsed, constraints_parsed)
-        hlb[blh_id] = {'id': blh_id, 'Scenario': scenario_parsed, 'Constraint': constraints_parsed}
-        #gen
-        return hlb[blh_id]
-api.add_resource(HandleGenerators, '/Generator/<string:blh_id>')
+        return {'_id': random.randint(1,101), 'parsedScenario': scenario_parsed, 'parsedConstraints': constraints_parsed}
+api.add_resource(HandleParse, '/hlb/parse')
 
+#Handle generateNS
+class HandleNS(Resource):
+    def put(self):
+        json_data = request.get_json(force=True)
+        actors = json_data['Actors']
+        scenario = json_data['Scenario']
+        constraints = json_data['Constraints']
+
+        with open("./ReturnFiles/returnGenerate.ns", "w") as file:
+            file.write("set ns [new Simulator]\nsource tb_compat.tcl\n# Nodes\nforeach node {\n") 
+            
+            for actor in actors:
+                file.write("\t" + actor + "\n")
+            file.write( "} {\n\tset $node [$ns node]\n\ttb-set-node-os $node Ubuntu-STD\n}\nset lan0 [$ns make-lan \"")
+            for a in actors:
+                file.write("$" + a + " ")
+            file.write("\" 100000.0kb 0.0ms]\n\n$ns rtproto Static\n$ns run")
+        return send_file("./ReturnFiles/returnGenerate.ns")
+api.add_resource(HandleNS, '/hlb/generateNs')
 
 if __name__ == '__main__':
     app.run(debug=True)
