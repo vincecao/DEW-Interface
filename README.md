@@ -21,4 +21,61 @@ See more script commands in `package.json`
 - `npm run build` for build
 
 ## Backend
-- `python backend/api.py`
+
+``` python
+cd backend
+python api.py
+```
+
+### Parser API
+
+Take an input string (behavior) and return the actors, triggers, actions, emit events and wait times. This can be used for auto completing the actors list.
+
+#### Request
+| Name | Value |
+| --- | --- |
+| Path | `/hlb/parse` |
+| Verb | PUT |
+| Body/Parameters | JSON: `{Scenario, Constraints, ParseType}` |
+
+#### Response
+| Name | Value |
+| --- | --- |
+| Status | `200` |
+| Body | JSON: `{_id, parsedScenario : tuple((TODO: actors), trigger events, actions, emit events, wait time), parsedConstraints: tuple(constraint type, target, value)}`|
+
+### generateNS API (in progress)
+
+This API takes the behavior, constraints and actors and return a NS file which can be used in deterlab.
+
+#### Request
+| Name | Value |
+| --- | --- |
+| Path | `/hlb/generateNs` |
+| Verb | PUT |
+| Body | JSON: `{Actors, Scenario, Constraints, Bindings}` |
+
+#### Response
+| Name | Value |
+| --- | --- |
+| Status | `200` |
+| Body | DEW contents as a return File, `returnGenerate.ns` |
+
+### Translator API
+
+Takes a file as an input and returns the dew format
+
+#### Request
+| Name | Value |
+| --- | --- |
+| Path | `/hlb/translate/:format/:returnType`,  `format` can be bash, magi, go etc., `returnType` can be dew & json |
+| Verb | PUT |
+| Body | JSON: `{InputFileContent}`, the script which needs to be converted to DEW |
+
+#### Response
+| Name | Value |
+| --- | --- |
+| Status | `200` |
+| Body(returnType: `json`) | JSON: `{InputFileContent}`, contents as a json |
+| Body(returnType: `dew`) | Dew contents as a return file, `returnTranslator.dew` |
+
