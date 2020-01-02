@@ -70,7 +70,7 @@ Takes a file as an input and returns the dew format
 | --- | --- |
 | Path | `/hlb/translate/:format/:returnType`,  `format` can be bash, magi, go etc., `returnType` can be dew & json |
 | Verb | PUT |
-| Body | JSON: `{InputFileContent}`, the script which needs to be converted to DEW |
+| Body | Script File(e.g. `runall.sh`), which needs to be converted to DEW |
 
 #### Response
 | Name | Value |
@@ -79,3 +79,21 @@ Takes a file as an input and returns the dew format
 | Body(returnType: `json`) | JSON: `{InputFileContent}`, contents as a json |
 | Body(returnType: `dew`) | Dew contents as a return file, `returnTranslator.dew` |
 
+### Exception handling
+``` json
+{
+  "_id": "uuid",
+  "errors": "error msg"
+}
+```
+| Error msg |
+| --- |
+| Not Vaild Format, should be bash, magi or go. |
+| Not Vaild ReturnType, should be dew or json. |
+| Not Vaild File. |
+| File is empty. |
+| Can not read from server. |
+| Out of bounds: {name}, has size of: {len(value)}, but should be between {expected_min} and {expected_max}. |
+| Unexpected field: {name}. |
+| Missing value: {name}. |
+| Not find correct api request url. |
